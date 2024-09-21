@@ -1,35 +1,34 @@
-// import QuestionCard from "@/components/cards/question-card";
+import QuestionCard from "@/components/cards/question-card";
 import HomeFilters from "@/components/home/home-filters";
 import Filter from "@/components/shared/filter";
-// import NoResult from "@/components/shared/no-result";
+import NoResult from "@/components/shared/no-result";
 import Pagination from "@/components/shared/pagination";
 import LocalSearchbar from "@/components/shared/search/local-searchbar";
 import { Button } from "@/components/ui/button";
 
 import { HomePageFilters } from "@/constants/filters";
-// import { getQuestions, getRecommendedQuestions } from "@/lib/actions/question.action";
+import { getQuestions, getRecommendedQuestions } from "@/actions/questions";
 import { SearchParamsProps } from "@/types";
 import Link from "next/link";
 
 import type { Metadata } from "next";
-// import { auth } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 
 export const metadata: Metadata = {
   title: "Home | GradLink",
 };
 
 export default async function Home({ searchParams }: SearchParamsProps) {
-  // const { userId } = auth();
-  const userId = false;
+  const { userId } = auth();
   let result;
 
   if (searchParams?.filter === "recommended") {
     if (userId) {
-      // result = await getRecommendedQuestions({
-      //   userId,
-      //   searchQuery: searchParams.q,
-      //   page: searchParams.page ? +searchParams.page : 1,
-      // });
+      result = await getRecommendedQuestions({
+        userId,
+        searchQuery: searchParams.q,
+        page: searchParams.page ? +searchParams.page : 1,
+      });
     } else {
       result = {
         questions: [],
@@ -37,11 +36,11 @@ export default async function Home({ searchParams }: SearchParamsProps) {
       };
     }
   } else {
-    // result = await getQuestions({
-    //   searchQuery: searchParams.q,
-    //   filter: searchParams.filter,
-    //   page: searchParams.page ? +searchParams.page : 1,
-    // });
+    result = await getQuestions({
+      searchQuery: searchParams.q,
+      filter: searchParams.filter,
+      page: searchParams.page ? +searchParams.page : 1,
+    });
   }
 
   return (
@@ -75,14 +74,22 @@ export default async function Home({ searchParams }: SearchParamsProps) {
       <HomeFilters />
 
       <div className="mt-10 flex w-full flex-col gap-6">
-        {/* {result.questions.length > 0 ? (
+        {result.questions.length > 0 ? (
           result.questions.map((question) => (
             <QuestionCard
-              key={question._id}
-              _id={question._id}
+              key={question.id}
+              _id={question.id}
               title={question.title}
-              tags={question.tags}
-              author={question.author}
+              tags={question.tags.map((tag: { id: string; tagId: string }) => ({
+                _id: tag.tagId, // Or use `id` if that represents the `_id`
+                name: tag.name || "Tag Name Placeholder", // Ensure `name` is available
+              }))}
+              author={{
+                _id: question.author.id, // Assuming you handled this earlier
+                name: question.author.name,
+                picture: question.author.picture,
+                clerkId: question.author.clerkId,
+              }}
               upvotes={question.upvotes}
               views={question.views}
               answers={question.answers}
@@ -96,12 +103,12 @@ export default async function Home({ searchParams }: SearchParamsProps) {
             link="/ask-question"
             linkTitle="Ask a Question"
           />
-        )} */}
+        )}
       </div>
       <div className="mt-10">
         <Pagination
           pageNumber={searchParams?.page ? +searchParams.page : 1}
-          // isNext={result.isNext}
+          isNext={result.isNext}
         />
       </div>
     </>

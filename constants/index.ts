@@ -14,23 +14,23 @@ export const sidebarLinks: SidebarLink[] = [
   },
   {
     imgURL: "/assets/icons/users.svg",
-    route: "/community",
-    label: "Community",
+    route: "/events",
+    label: "events",
   },
   {
     imgURL: "/assets/icons/star.svg",
-    route: "/collection",
-    label: "Collections",
+    route: "/mentorship",
+    label: "Mentorship",
   },
   {
     imgURL: "/assets/icons/suitcase.svg",
     route: "/jobs",
-    label: "Find Jobs",
+    label: "Job Portal",
   },
   {
     imgURL: "/assets/icons/tag.svg",
-    route: "/tags",
-    label: "Tags",
+    route: "/merch",
+    label: "merch",
   },
   {
     imgURL: "/assets/icons/user.svg",
@@ -38,9 +38,19 @@ export const sidebarLinks: SidebarLink[] = [
     label: "Profile",
   },
   {
-    imgURL: "/assets/icons/question.svg",
-    route: "/ask-question",
-    label: "Ask a question",
+    imgURL: "/assets/icons/money.svg",
+    route: "/donations",
+    label: "Donations",
+  },
+  {
+    imgURL: "/assets/icons/startup.svg",
+    route: "/startup-funding",
+    label: "Startup funding",
+  },
+  {
+    imgURL: "/assets/icons/alumni.svg",
+    route: "/alumni-directory",
+    label: "Alumni Directory",
   },
 ];
 

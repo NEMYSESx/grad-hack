@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String   @id @default(uuid())
+  clerkId          String   @unique // Make this field unique
+  name             String
+  username         String   @unique
+  email            String   @unique
+  password         String?
+  bio              String?
+  picture          String
+  location         String?
+  portfolioWebsite String?
+  reputation       Int      @default(0)
+  joinedAt         DateTime @default(now())
+
+  questions    Question[]    @relation("QuestionsAuthor")
+  answers      Answer[]      @relation("AnswersAuthor")
+  interactions Interaction[]
+
+  savedQuestions    SavedQuestion[]
+  followedTags      UserTag[]
+  upvotes           AnswerUpvote[]
+  downvotes         AnswerDownvote[]
+  questionUpvotes   QuestionUpvote[]
+  questionDownvotes QuestionDownvote[]
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  views     Int      @default(0)
+  authorId  String
+  createdAt DateTime @default(now())
+
+  author       User          @relation("QuestionsAuthor", fields: [authorId], references: [id])
+  answers      Answer[]      @relation("QuestionAnswers")
+  interactions Interaction[]
+
+  tags      QuestionTag[]
+  upvotes   QuestionUpvote[]
+  downvotes QuestionDownvote[]
+  savedBy   SavedQuestion[]    @relation("SavedBy")
+}
+
+model Answer {
+  id         String   @id @default(uuid())
+  content    String
+  authorId   String
+  questionId String
+  createdAt  DateTime @default(now())
+
+  author       User          @relation("AnswersAuthor", fields: [authorId], references: [id])
+  question     Question      @relation("QuestionAnswers", fields: [questionId], references: [id])
+  interactions Interaction[]
+
+  upvotes   AnswerUpvote[]
+  downvotes AnswerDownvote[]
+}
+
+model Interaction {
+  id         String   @id @default(uuid())
+  action     String
+  userId     String
+  questionId String?
+  answerId   String?
+  createdAt  DateTime @default(now())
+
+  user     User             @relation(fields: [userId], references: [id])
+  question Question?        @relation(fields: [questionId], references: [id])
+  answer   Answer?          @relation(fields: [answerId], references: [id])
+  tags     InteractionTag[]
+}
+
+model Tag {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  createdOn   DateTime @default(now())
+
+  questions    QuestionTag[]
+  followers    UserTag[]
+  interactions InteractionTag[]
+}
+
+model SavedQuestion {
+  id         String @id @default(uuid())
+  userId     String
+  questionId String
+
+  user     User     @relation(fields: [userId], references: [id])
+  question Question @relation("SavedBy", fields: [questionId], references: [id])
+}
+
+model UserTag {
+  id     String @id @default(uuid())
+  userId String
+  tagId  String
+
+  user User @relation(fields: [userId], references: [id])
+  tag  Tag  @relation(fields: [tagId], references: [id])
+}
+
+model QuestionTag {
+  id         String @id @default(uuid())
+  questionId String
+  tagId      String
+
+  question Question @relation(fields: [questionId], references: [id])
+  tag      Tag      @relation(fields: [tagId], references: [id])
+}
+
+model AnswerUpvote {
+  id       String @id @default(uuid())
+  answerId String
+  userId   String
+
+  answer Answer @relation(fields: [answerId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model AnswerDownvote {
+  id       String @id @default(uuid())
+  answerId String
+  userId   String
+
+  answer Answer @relation(fields: [answerId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model QuestionUpvote {
+  id         String @id @default(uuid())
+  questionId String
+  userId     String
+
+  question Question @relation(fields: [questionId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+}
+
+model QuestionDownvote {
+  id         String @id @default(uuid())
+  questionId String
+  userId     String
+
+  question Question @relation(fields: [questionId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+}
+
+model InteractionTag {
+  id            String @id @default(uuid())
+  interactionId String
+  tagId         String
+
+  interaction Interaction @relation(fields: [interactionId], references: [id])
+  tag         Tag         @relation(fields: [tagId], references: [id])
+}
